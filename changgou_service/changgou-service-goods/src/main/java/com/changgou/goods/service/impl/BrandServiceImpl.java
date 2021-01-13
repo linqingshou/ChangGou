@@ -31,6 +31,7 @@ public class BrandServiceImpl implements BrandService {
                 criteria.andEqualTo("id",brand.getId());
             }
         }
+        return example;
     }
 
     /***
@@ -96,10 +97,11 @@ public class BrandServiceImpl implements BrandService {
      * @return
      */
     @Override
-    public PageInfo<Brand> findPage(int page, int size) {
+    public PageInfo<Brand> findPage(int page, int size){
+        //静态分页
         PageHelper.startPage(page,size);
-        List<Brand> brands = brandMapper.selectAll();
-        return new PageInfo<Brand>(brands);
+        //分页查询
+        return new PageInfo<Brand>(brandMapper.selectAll());
     }
 
     /***
