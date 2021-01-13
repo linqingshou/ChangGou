@@ -1,4 +1,4 @@
-package entity;
+package com.changgou.entity;
 import java.util.List;
 public class PageResult<T> {
 
