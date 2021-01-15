@@ -81,7 +81,7 @@ public class BrandController {
         return new Result<List<Brand>>(true,StatusCode.OK,"成功查询",brands);
     }
     /***
-     * 分页搜索实现
+     * 分页实现
      * @param page:当前页
      * @param size:每页显示多少条
      * @return

@@ -27,8 +27,8 @@ public class BrandServiceImpl implements BrandService {
             if(!StringUtils.isEmpty(brand.getLetter())){
                 criteria.andEqualTo("letter",brand.getLetter());
             }
-            if(!StringUtils.isEmpty(brand.getLetter())){
-                criteria.andEqualTo("id",brand.getId());
+            if(!StringUtils.isEmpty(brand.getImage())){
+                criteria.andEqualTo("image",brand.getImage());
             }
         }
         return example;
