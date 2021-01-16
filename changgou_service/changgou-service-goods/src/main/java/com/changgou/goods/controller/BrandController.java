@@ -107,4 +107,14 @@ public class BrandController {
         return new Result(true,StatusCode.OK,"查询成功",pageInfo);
     }
 
+    /***
+     * 根据商品分类名称查询品牌列表
+     * @param categoryName
+     * @return
+     */
+    @GetMapping("/category/{categoryName}")
+    public Result findByCategoryName(@PathVariable String categoryName){
+        List<Brand> brands = brandService.findByCategoryName(categoryName);
+        return new Result<List<Brand>>(true,StatusCode.OK,"成功查询",brands);
+    }
 }

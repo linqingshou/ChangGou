@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BrandServiceImpl implements BrandService {
@@ -116,5 +117,15 @@ public class BrandServiceImpl implements BrandService {
         List<Brand> brands = findList(brand);
         PageHelper.startPage(page,size);
         return new PageInfo<Brand>(brands);
+    }
+
+    /***
+     * 根据商品分类名称查询品牌列表
+     * @param categoryName
+     * @return
+     */
+    @Override
+    public List<Brand> findByCategoryName(String categoryName) {
+        return brandMapper.findByCategoryName(categoryName);
     }
 }

@@ -4,6 +4,7 @@ import com.changgou.goods.pojo.Brand;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
+import java.util.Map;
 
 public interface BrandService {
 
@@ -62,4 +63,11 @@ public interface BrandService {
      * @return
      */
     PageInfo<Brand> findPage(Brand brand, int page, int size);
+
+    /***
+     * 根据商品分类名称查询品牌列表
+     * @param categoryName
+     * @return
+     */
+    List<Brand> findByCategoryName(String categoryName);
 }
