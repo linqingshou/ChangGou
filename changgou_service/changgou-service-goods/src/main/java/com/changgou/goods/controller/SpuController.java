@@ -41,16 +41,6 @@ public class SpuController {
     }
 
 
-    /***
-     * 新增数据
-     * @param spu
-     * @return
-     */
-    /*@PostMapping
-    public Result add(@RequestBody Spu spu){
-        spuService.add(spu);
-        return new Result(true,StatusCode.OK,"添加成功");
-    }*/
 
     /***
      * 新增数据
@@ -66,14 +56,14 @@ public class SpuController {
 
     /***
      * 修改数据
-     * @param spu
+     * @param goods
      * @param id
      * @return
      */
     @PutMapping(value="/{id}")
-    public Result update(@RequestBody Spu spu,@PathVariable String id){
-        spu.setId(id);
-        spuService.update(spu);
+    public Result update(@RequestBody Goods goods,@PathVariable String id){
+        goods.getSpu().setId(id);
+        spuService.update(goods);
         return new Result(true,StatusCode.OK,"修改成功");
     }
 

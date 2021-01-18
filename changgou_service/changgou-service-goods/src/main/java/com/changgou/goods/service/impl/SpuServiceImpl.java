@@ -140,25 +140,25 @@ public class SpuServiceImpl implements SpuService {
     }
 
 
-    /**
-     * 增加
-     *
-     * @param spu
-     */
-    @Override
-    public void add(Spu spu) {
-        spuMapper.insert(spu);
-    }
+
 
 
     /**
      * 修改
      *
-     * @param spu
+     * @param goods
      */
     @Override
-    public void update(Spu spu) {
+    public void update(Goods goods) {
+        Spu spu = goods.getSpu();
         spuMapper.updateByPrimaryKey(spu);
+
+        Example example = new Example(Sku.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("spuId",spu.getId());
+        skuMapper.deleteByExample(example);
+
+        saveSkuList(goods);
     }
 
     /**

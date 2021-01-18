@@ -9,6 +9,8 @@ import java.util.Map;
 
 public interface SpuService {
 
+
+
     /***
      * 查询所有
      * @return
@@ -29,11 +31,6 @@ public interface SpuService {
      */
     Goods findGoodsById(String id);
 
-    /***
-     * 新增
-     * @param spu
-     */
-    void add(Spu spu);
 
     /***
      * 新增
@@ -43,9 +40,9 @@ public interface SpuService {
 
     /***
      * 修改
-     * @param spu
+     * @param goods
      */
-    void update(Spu spu);
+    void update(Goods goods);
 
     /***
      * 删除
