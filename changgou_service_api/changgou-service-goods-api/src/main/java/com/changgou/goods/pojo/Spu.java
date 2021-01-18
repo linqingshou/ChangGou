@@ -14,9 +14,6 @@ public class Spu implements Serializable {
 
 	@Id
 	private String id;//主键
-
-
-	
 	private String sn;//货号
 	private String name;//SPU名
 	private String caption;//副标题
