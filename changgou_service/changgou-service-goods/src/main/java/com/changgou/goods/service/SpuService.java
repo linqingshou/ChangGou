@@ -9,7 +9,47 @@ import java.util.Map;
 
 public interface SpuService {
 
+    /**
+     * 恢复数据
+     * @param id
+     */
+    public void restore(Long id);
 
+    /**
+     * 物理删除
+     * @param id
+     */
+    public void realDelete(Long id);
+
+    /**
+     * 下架商品
+     * @param id
+     */
+    public void pull(Long id);
+
+    /**
+     * 批量下架商品
+     * @param id
+     */
+    public void pullMany(Long id);
+
+    /**
+     * 上架商品
+     * @param id
+     */
+    public void put(Long id);
+
+    /**
+     * 批量上架商品
+     * @param ids
+     */
+    public void putMany(Long[] ids);
+
+    /**
+     * 审核
+     * @param id
+     */
+    public void audit(Long id);
 
     /***
      * 查询所有
@@ -22,14 +62,14 @@ public interface SpuService {
      * @param id
      * @return
      */
-    Spu findById(String id);
+    Spu findById(Long id);
 
     /**
      * 根据ID查询商品
      * @param id
      * @return
      */
-    Goods findGoodsById(String id);
+    Goods findGoodsById(Long id);
 
 
     /***
@@ -48,7 +88,7 @@ public interface SpuService {
      * 删除
      * @param id
      */
-    void delete(String id);
+    void delete(Long id);
 
     /***
      * 多条件搜索

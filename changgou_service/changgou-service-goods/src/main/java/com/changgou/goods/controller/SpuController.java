@@ -1,4 +1,5 @@
 package com.changgou.goods.controller;
+
 import com.changgou.entity.PageResult;
 import com.changgou.entity.Result;
 import com.changgou.entity.StatusCode;
@@ -8,8 +9,10 @@ import com.changgou.goods.pojo.Spu;
 import com.github.pagehelper.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Map;
+
 @RestController
 @CrossOrigin
 @RequestMapping("/spu")
@@ -21,12 +24,13 @@ public class SpuController {
 
     /**
      * 查询全部数据
+     *
      * @return
      */
     @GetMapping
-    public Result findAll(){
+    public Result findAll() {
         List<Spu> spuList = spuService.findAll();
-        return new Result(true, StatusCode.OK,"查询成功",spuList) ;
+        return new Result(true, StatusCode.OK, "查询成功", spuList);
     }
 
     /***
@@ -35,12 +39,22 @@ public class SpuController {
      * @return
      */
     @GetMapping("/{id}")
-    public Result findById(@PathVariable String id){
+    public Result findById(@PathVariable Long id) {
         Goods goods = spuService.findGoodsById(id);
-        return new Result(true,StatusCode.OK,"查询成功",goods);
+        return new Result(true, StatusCode.OK, "查询成功", goods);
     }
 
-
+    /**
+     * 审核
+     *
+     * @param id
+     * @return
+     */
+    @PutMapping("/audit/{id}")
+    public Result audit(@PathVariable Long id) {
+        spuService.audit(id);
+        return new Result(true, StatusCode.OK, "审核成功");
+    }
 
     /***
      * 新增数据
@@ -48,11 +62,46 @@ public class SpuController {
      * @return
      */
     @PostMapping
-    public Result add(@RequestBody Goods goods){
+    public Result add(@RequestBody Goods goods) {
         spuService.add(goods);
-        return new Result(true,StatusCode.OK,"添加成功");
+        return new Result(true, StatusCode.OK, "添加成功");
     }
 
+    /**
+     * 上架
+     *
+     * @param id
+     * @return
+     */
+    @PutMapping("/put/{id}")
+    public Result put(@PathVariable Long id) {
+        spuService.put(id);
+        return new Result(true, StatusCode.OK, "上架成功");
+    }
+
+    /**
+     * 批量上架
+     *
+     * @param ids
+     * @return
+     */
+    @PutMapping("/put/many")
+    public Result putMany(@RequestBody Long[] ids) {
+        spuService.putMany(ids);
+        return new Result(true, StatusCode.OK, "批量上架成功");
+    }
+
+    /**
+     * 下架
+     *
+     * @param id
+     * @return
+     */
+    @PutMapping("/pull/{id}")
+    public Result pull(@PathVariable Long id) {
+        spuService.pull(id);
+        return new Result(true, StatusCode.OK, "下架成功");
+    }
 
     /***
      * 修改数据
@@ -60,23 +109,43 @@ public class SpuController {
      * @param id
      * @return
      */
-    @PutMapping(value="/{id}")
-    public Result update(@RequestBody Goods goods,@PathVariable String id){
+    @PutMapping(value = "/{id}")
+    public Result update(@RequestBody Goods goods, @PathVariable Long id) {
         goods.getSpu().setId(id);
         spuService.update(goods);
-        return new Result(true,StatusCode.OK,"修改成功");
+        return new Result(true, StatusCode.OK, "修改成功");
     }
 
-
+    /**
+     * 恢复数据
+     *
+     * @param id
+     * @return
+     */
+    @PutMapping("/restore/{id}")
+    public Result restore(@PathVariable Long id) {
+        spuService.restore(id);
+        return new Result(true, StatusCode.OK, "恢复成功");
+    }
+    /**
+     * 物理删除
+     * @param id
+     * @return
+     */
+    @DeleteMapping("/realDelete/{id}")
+    public Result realDelete(@PathVariable Long id){
+        spuService.realDelete(id);
+        return new Result();
+    }
     /***
      * 根据ID删除品牌数据
      * @param id
      * @return
      */
-    @DeleteMapping(value = "/{id}" )
-    public Result delete(@PathVariable String id){
+    @DeleteMapping(value = "/{id}")
+    public Result delete(@PathVariable Long id) {
         spuService.delete(id);
-        return new Result(true,StatusCode.OK,"删除成功");
+        return new Result(true, StatusCode.OK, "删除成功");
     }
 
     /***
@@ -84,10 +153,10 @@ public class SpuController {
      * @param searchMap
      * @return
      */
-    @GetMapping(value = "/search" )
-    public Result findList(@RequestParam Map searchMap){
+    @GetMapping(value = "/search")
+    public Result findList(@RequestParam Map searchMap) {
         List<Spu> list = spuService.findList(searchMap);
-        return new Result(true,StatusCode.OK,"查询成功",list);
+        return new Result(true, StatusCode.OK, "查询成功", list);
     }
 
 
@@ -98,11 +167,11 @@ public class SpuController {
      * @param size
      * @return
      */
-    @GetMapping(value = "/search/{page}/{size}" )
-    public Result findPage(@RequestParam Map searchMap, @PathVariable  int page, @PathVariable  int size){
+    @GetMapping(value = "/search/{page}/{size}")
+    public Result findPage(@RequestParam Map searchMap, @PathVariable int page, @PathVariable int size) {
         Page<Spu> pageList = spuService.findPage(searchMap, page, size);
-        PageResult pageResult=new PageResult(pageList.getTotal(),pageList.getResult());
-        return new Result(true,StatusCode.OK,"查询成功",pageResult);
+        PageResult pageResult = new PageResult(pageList.getTotal(), pageList.getResult());
+        return new Result(true, StatusCode.OK, "查询成功", pageResult);
     }
 
 

@@ -5,12 +5,12 @@ spring:
     name: goods
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    #url: jdbc:mysql://192.168.211.132:3306/changgou_goods?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
-    #username: root
-    #password: 123456
-    url: jdbc:mysql://rm-bp17u5a8x20jk01fz2o.mysql.rds.aliyuncs.com/qingcheng_goods?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    url: jdbc:mysql://192.168.211.132:3306/changgou_goods?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
     username: root
-    password: LQS@527089599
+    password: 123456
+    #url: jdbc:mysql://rm-bp17u5a8x20jk01fz2o.mysql.rds.aliyuncs.com/qingcheng_goods?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    #username: root
+    #password: LQS@527089599
 eureka:
   client:
     service-url:
