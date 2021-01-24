@@ -24,9 +24,10 @@ public class ContentController {
      * @param id
      * @return
      */
-    @GetMapping("/list/category/{id}")
-    public Result findByCategoryId(@PathVariable Long id){
-        List<Content> contentList = contentService.findByCategoryId(id);
-        return new Result(true, StatusCode.OK,"查询成功",contentList);
+    @GetMapping(value = "/list/category/{id}")
+    public Result<List<Content>> findByCategoryId(@PathVariable Long id){
+        //根据分类ID查询广告集合
+        List<Content> contents = contentService.findByCategoryId(id);
+        return new Result<List<Content>>(true,StatusCode.OK,"查询成功！",contents);
     }
 }
