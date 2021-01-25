@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/content")
 @CrossOrigin
@@ -20,12 +19,10 @@ public class ContentController {
     private ContentService contentService;
 
     /***
-     * 根据分类id查询
-     * @param id
-     * @return
+     * 根据categoryId查询广告集合
      */
     @GetMapping(value = "/list/category/{id}")
-    public Result<List<Content>> findByCategoryId(@PathVariable Long id){
+    public Result<List<Content>> findByCategory(@PathVariable Long id){
         //根据分类ID查询广告集合
         List<Content> contents = contentService.findByCategoryId(id);
         return new Result<List<Content>>(true,StatusCode.OK,"查询成功！",contents);

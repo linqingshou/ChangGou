@@ -8,13 +8,14 @@ import com.changgou.entity.Result;
 import com.xpand.starter.canal.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+
 import java.util.List;
 
 @CanalEventListener
 public class ContentListener {
     @Autowired
     private ContentFeign contentFeign;
-
+    //字符串
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
@@ -31,7 +32,7 @@ public class ContentListener {
     )
     public void contentUpdate(CanalEntry.EventType eventType, CanalEntry.RowData rowData) {
         String categoryId = getColumnValue(eventType, rowData);
-        Result<List<Content>> content = contentFeign.findByCategoryId(Long.valueOf(categoryId));
+        Result<List<Content>> content = contentFeign.findByCategory(Long.valueOf(categoryId));
         List<Content> data = content.getData();
         stringRedisTemplate.boundValueOps("content_" + categoryId).set(JSON.toJSONString(data));
     }
