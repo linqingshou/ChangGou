@@ -18,6 +18,14 @@ public class SkuServiceImpl implements SkuService {
     @Autowired
     private SkuMapper skuMapper;
 
+    @Override
+    public List<Sku> findByStatus(String status) {
+        Sku sku = new Sku();
+        sku.setStatus(status);
+        List<Sku> skus = skuMapper.selectByExample(sku);
+        return skus;
+    }
+
     /**
      * 查询全部列表
      * @return

@@ -18,10 +18,21 @@ public class SkuController {
     @Autowired
     private SkuService skuService;
 
-    /**
-     * 查询全部数据
+    /***
+     * 根据审核状态查询Sku
+     * @param status
      * @return
      */
+    @GetMapping("/status/{status}")
+    public Result<List<Sku>> findByStatus(@PathVariable String status) {
+        List<Sku> list = skuService.findByStatus(status);
+        return new Result<List<Sku>>(true, StatusCode.OK, "查询成功", list);
+    }
+
+        /**
+         * 查询全部数据
+         * @return
+         */
     @GetMapping
     public Result findAll(){
         List<Sku> skuList = skuService.findAll();
