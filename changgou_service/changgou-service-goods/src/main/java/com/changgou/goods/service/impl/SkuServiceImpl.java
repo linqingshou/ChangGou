@@ -22,7 +22,7 @@ public class SkuServiceImpl implements SkuService {
     public List<Sku> findByStatus(String status) {
         Sku sku = new Sku();
         sku.setStatus(status);
-        List<Sku> skus = skuMapper.selectByExample(sku);
+        List<Sku> skus = skuMapper.select(sku);
         return skus;
     }
 
