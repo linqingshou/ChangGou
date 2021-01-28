@@ -59,30 +59,34 @@ public class SkuServiceImpl implements SkuService {
             queryBuilder.withQuery(QueryBuilders.matchQuery("name", keywords));
         }
 
-        queryBuilder.addAggregation(AggregationBuilders.terms("categoryName").field("categoryName"));
+        queryBuilder.addAggregation(AggregationBuilders.terms("skuCategorygroup").field("categoryName"));
+        queryBuilder.addAggregation(AggregationBuilders.terms("skuBrandgroup").field("brandName"));
 
         NativeSearchQuery build = queryBuilder.build();
         AggregatedPage<SkuInfo> skuPage = elasticsearchTemplate.queryForPage(build, SkuInfo.class);
 
-        List<String> categoryList = getCategoryList(skuPage);
+        List<String> categoryList = getList(skuPage,"skuCategorygroup");
+        List<String> brandList  = getList(skuPage,"skuBrandgroup");
+
 
         Map map = new HashMap<>();
         map.put("rows", skuPage.getContent());
         map.put("total",skuPage.getTotalElements());
         map.put("totalPages",skuPage.getTotalPages());
         map.put("categoryList",categoryList);
+        map.put("brandList",brandList);
         return map;
     }
 
-    private List<String> getCategoryList(AggregatedPage<SkuInfo> skuPage) {
-        StringTerms stringTerms = (StringTerms) skuPage.getAggregation("categoryName");
-        List<String> categoryList = new ArrayList<>();
+    private List<String> getList(AggregatedPage<SkuInfo> skuPage,String group) {
+        StringTerms stringTerms = (StringTerms) skuPage.getAggregation(group);
+        List<String> list = new ArrayList<>();
         if (stringTerms != null){
             for (StringTerms.Bucket bucket : stringTerms.getBuckets()){
                 String key = bucket.getKeyAsString();
-                categoryList.add(key);
+                list.add(key);
             }
         }
-        return categoryList;
+        return list;
     }
 }
