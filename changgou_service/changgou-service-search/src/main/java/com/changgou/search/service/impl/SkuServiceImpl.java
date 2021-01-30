@@ -31,6 +31,9 @@ public class SkuServiceImpl implements SkuService {
     @Autowired
     private ElasticsearchTemplate elasticsearchTemplate;
 
+    /***
+     * 导入SKU数据
+     */
     @Override
     public void importSku() {
         Result<List<Sku>> result = skuFeign.findByStatus("1");
