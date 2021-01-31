@@ -8,6 +8,7 @@ import com.changgou.search.dao.SkuEsMapper;
 import com.changgou.search.pojo.SkuInfo;
 import com.changgou.search.service.SkuService;
 import org.apache.commons.lang.StringUtils;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
@@ -53,14 +54,9 @@ public class SkuServiceImpl implements SkuService {
      * @return
      */
     @Override
-    public Map search(Map<String, String> searchMap) {
-        String keywords = searchMap.get("keywords");
-        NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
-        if (!StringUtils.isEmpty(keywords)) {
-            queryBuilder.withQuery(QueryBuilders.matchQuery("name", keywords));
-        }
-        //设置分组条件并构建查询对象
-        NativeSearchQuery build = getNativeSearchQuery(queryBuilder);
+    public Map<String,Object> search(Map<String, String> searchMap) {
+
+        NativeSearchQuery build = getNativeSearchQuery(searchMap);
 
         AggregatedPage<SkuInfo> skuPage = elasticsearchTemplate.queryForPage(build, SkuInfo.class);
 
@@ -69,7 +65,12 @@ public class SkuServiceImpl implements SkuService {
         Map<String, Set<String>> skuList = getStringSetMap(skuPage, "skuSpecGroup");
 
 
-        Map map = new HashMap<>();
+        Map<String,Object> resultMap = getMap(skuPage, categoryList, brandList, skuList);
+        return resultMap;
+    }
+
+    private Map<String,Object> getMap(AggregatedPage<SkuInfo> skuPage, List<String> categoryList, List<String> brandList, Map<String, Set<String>> skuList) {
+        Map<String,Object> map = new HashMap<>();
         map.put("rows", skuPage.getContent());
         map.put("total", skuPage.getTotalElements());
         map.put("totalPages", skuPage.getTotalPages());
@@ -77,6 +78,28 @@ public class SkuServiceImpl implements SkuService {
         map.put("brandList", brandList);
         map.put("skuList", skuList);
         return map;
+    }
+
+    private NativeSearchQuery getNativeSearchQuery(Map<String, String> searchMap) {
+        NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        if (searchMap != null){
+            String keywords = searchMap.get("keywords");
+            if (!StringUtils.isEmpty(keywords)) {
+                queryBuilder.withQuery(QueryBuilders.matchQuery("name", keywords));
+            }
+            if (!StringUtils.isEmpty(searchMap.get("brand"))){
+                boolQueryBuilder.filter(QueryBuilders.termQuery("brandName",searchMap.get("brand")));
+            }
+            if (!StringUtils.isEmpty(searchMap.get("category"))){
+                boolQueryBuilder.filter(QueryBuilders.termQuery("categoryName",searchMap.get("category")));
+            }
+
+        }
+        queryBuilder.withFilter(boolQueryBuilder);
+        //设置分组条件并构建查询对象
+        NativeSearchQuery build = getNativeSearchQuery(queryBuilder);
+        return build;
     }
 
     /***

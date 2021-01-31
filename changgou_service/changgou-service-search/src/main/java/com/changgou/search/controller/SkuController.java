@@ -31,7 +31,7 @@ public class SkuController {
      * @return
      */
     @GetMapping
-    public Map search(@RequestParam(required = false) Map searchMap){
+    public Map<String,Object> search(@RequestParam(required = false) Map<String,String> searchMap){
         return  skuService.search(searchMap);
     }
 }
