@@ -8,15 +8,19 @@ import com.changgou.search.dao.SkuEsMapper;
 import com.changgou.search.pojo.SkuInfo;
 import com.changgou.search.service.SkuService;
 import org.apache.commons.lang.StringUtils;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.SearchResultMapper;
 import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
@@ -61,7 +65,7 @@ public class SkuServiceImpl implements SkuService {
 
         NativeSearchQuery build = getNativeSearchQuery(searchMap);
 
-        AggregatedPage<SkuInfo> skuPage = elasticsearchTemplate.queryForPage(build, SkuInfo.class);
+        AggregatedPage<SkuInfo> skuPage = elasticsearchTemplate.queryForPage(build, SkuInfo.class, new SearchResultMapperImpl());
 
         List<String> categoryList = getList(skuPage, "skuCategoryGroup");
         List<String> brandList = getList(skuPage, "skuBrandGroup");
@@ -85,6 +89,13 @@ public class SkuServiceImpl implements SkuService {
 
     private NativeSearchQuery getNativeSearchQuery(Map<String, String> searchMap) {
         NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
+
+        //设置高亮条件
+        HighlightBuilder.Field field = new HighlightBuilder.Field("name");
+        field.preTags("<em style=\"color:red\">");
+        field.postTags("</em>");
+        queryBuilder.withHighlightFields(field);
+
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         if (searchMap != null) {
             String keywords = searchMap.get("keywords");
