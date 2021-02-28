@@ -8,12 +8,19 @@ import com.changgou.search.dao.SkuEsMapper;
 import com.changgou.search.pojo.SkuInfo;
 import com.changgou.search.service.SkuService;
 import org.apache.commons.lang.StringUtils;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.SearchResultMapper;
 import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
@@ -54,23 +61,23 @@ public class SkuServiceImpl implements SkuService {
      * @return
      */
     @Override
-    public Map<String,Object> search(Map<String, String> searchMap) {
+    public Map<String, Object> search(Map<String, String> searchMap) {
 
         NativeSearchQuery build = getNativeSearchQuery(searchMap);
 
-        AggregatedPage<SkuInfo> skuPage = elasticsearchTemplate.queryForPage(build, SkuInfo.class);
+        AggregatedPage<SkuInfo> skuPage = elasticsearchTemplate.queryForPage(build, SkuInfo.class, new SearchResultMapperImpl());
 
         List<String> categoryList = getList(skuPage, "skuCategoryGroup");
         List<String> brandList = getList(skuPage, "skuBrandGroup");
         Map<String, Set<String>> skuList = getStringSetMap(skuPage, "skuSpecGroup");
 
 
-        Map<String,Object> resultMap = getMap(skuPage, categoryList, brandList, skuList);
+        Map<String, Object> resultMap = getMap(skuPage, categoryList, brandList, skuList);
         return resultMap;
     }
 
-    private Map<String,Object> getMap(AggregatedPage<SkuInfo> skuPage, List<String> categoryList, List<String> brandList, Map<String, Set<String>> skuList) {
-        Map<String,Object> map = new HashMap<>();
+    private Map<String, Object> getMap(AggregatedPage<SkuInfo> skuPage, List<String> categoryList, List<String> brandList, Map<String, Set<String>> skuList) {
+        Map<String, Object> map = new HashMap<>();
         map.put("rows", skuPage.getContent());
         map.put("total", skuPage.getTotalElements());
         map.put("totalPages", skuPage.getTotalPages());
@@ -82,21 +89,55 @@ public class SkuServiceImpl implements SkuService {
 
     private NativeSearchQuery getNativeSearchQuery(Map<String, String> searchMap) {
         NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
+
+        //设置高亮条件
+        HighlightBuilder.Field field = new HighlightBuilder.Field("name");
+        field.preTags("<em style=\"color:red\">");
+        field.postTags("</em>");
+        queryBuilder.withHighlightFields(field);
+
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        if (searchMap != null){
+        if (searchMap != null) {
             String keywords = searchMap.get("keywords");
             if (!StringUtils.isEmpty(keywords)) {
                 queryBuilder.withQuery(QueryBuilders.matchQuery("name", keywords));
             }
-            if (!StringUtils.isEmpty(searchMap.get("brand"))){
-                boolQueryBuilder.filter(QueryBuilders.termQuery("brandName",searchMap.get("brand")));
+            if (!StringUtils.isEmpty(searchMap.get("brand"))) {
+                boolQueryBuilder.filter(QueryBuilders.termQuery("brandName", searchMap.get("brand")));
             }
-            if (!StringUtils.isEmpty(searchMap.get("category"))){
-                boolQueryBuilder.filter(QueryBuilders.termQuery("categoryName",searchMap.get("category")));
+            if (!StringUtils.isEmpty(searchMap.get("category"))) {
+                boolQueryBuilder.filter(QueryBuilders.termQuery("categoryName", searchMap.get("category")));
             }
-
+            for (String key : searchMap.keySet()) {
+                if (key.startsWith("spec_")) {
+                    boolQueryBuilder.filter(QueryBuilders.termQuery("spec." + key.substring(5) + ".keyword", searchMap.get(key)));
+                }
+            }
+            String price = searchMap.get("price");
+            if (!StringUtils.isEmpty(price)) {
+                String[] split = price.split("-");
+                if (split.length == 2) {
+                    boolQueryBuilder.filter(QueryBuilders.rangeQuery("price").from(split[0], true).to(split[1], true));
+                } else {
+                    boolQueryBuilder.filter(QueryBuilders.rangeQuery("price").gte(split[0]));
+                }
+            }
+            String sortRule = searchMap.get("sortRule");
+            String sortField = searchMap.get("sortField");
+            if (!StringUtils.isEmpty(sortField) && !StringUtils.isEmpty(sortRule)) {
+                queryBuilder.withSort(SortBuilders.fieldSort(sortField).order(sortRule.equalsIgnoreCase("DESC") ? SortOrder.DESC : SortOrder.ASC));
+            }
         }
         queryBuilder.withFilter(boolQueryBuilder);
+
+        // 分页
+        Integer pageNum = 1;
+        Integer pageSize = 3;
+        if (!StringUtils.isEmpty(searchMap.get("pageNum"))) {
+            pageNum = Integer.valueOf(searchMap.get("pageNum"));
+        }
+        queryBuilder.withPageable(PageRequest.of(pageNum, pageSize));
+
         //设置分组条件并构建查询对象
         NativeSearchQuery build = getNativeSearchQuery(queryBuilder);
         return build;
